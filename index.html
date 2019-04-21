@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Wijmo FlexGrid Sample</title>
+
+  <!-- Wijmo styles and core (required) -->
+  <link href="https://cdn.grapecity.com/wijmo/5.20183.550/styles/wijmo.min.css" rel="stylesheet" />
+  <script src="https://cdn.grapecity.com/wijmo/5.20183.550/controls/wijmo.min.js"></script>
+
+  <!-- Wijmoコントロール（オプションで、必要なコントロールを含みます） -->
+  <script src="https://cdn.grapecity.com/wijmo/5.20183.550/controls/wijmo.grid.min.js"></script>
+
+  <!-- Wijmoのカスタムカルチャー（オプション、必要なカルチャーを含みます） -->
+  <script src="https://cdn.grapecity.com/wijmo/5.20183.550/controls/cultures/wijmo.culture.ja.min.js "></script>
+</head>
+
+<body>
+  <!-- Styles -->
+  <style>
+    .wj-flexgrid {
+      max-height: 250px;
+      margin-bottom: 12px;
+    }
+
+    .header {
+      display: inline-block;
+      width: 150px;
+      text-align: right;
+      font-weight: normal;
+    }
+  </style>
+
+  <!-- HTML -->
+  <div class="container">
+    <h1>FlexGrid</h1>
+    <div>
+      見えている領域:<span id="panelRange"></span>
+    </div>
+    <div id="gridDefault"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    onload = function () {
+      const gridInfo = document.getElementById('panelRange');
+
+      const countries = 'US,Germany,UK,Japan,Italy,Greece'.split(','),
+        data = [];
+
+      for (let i = 0; i < 200; i++) {
+        data.push({
+          id: i,
+          country: countries[i % countries.length],
+          active: i % 5 !== 0,
+          downloads: Math.round(Math.random() * 200000),
+          sales: Math.random() * 100000,
+          expenses: Math.random() * 50000
+        });
+      }
+
+      const gridDefault = new wijmo.grid.FlexGrid('#gridDefault');
+      gridDefault.itemsSource = data;
+
+      // 見えないセルに対しては、極力 itemFormatter や 
+      // formatItem を軽くしてあげる作成
+      gridDefault.itemFormatter = (panel, r, c, cell) => {
+        // セルが viewRange の範囲外なら、描画をやめる
+        const viewRange = panel.grid.viewRange;
+
+        // 表示されている領域を画面に表示する
+        gridInfo.innerHTML = `(${viewRange.row}, ${viewRange.col}) : (${viewRange.row2}, ${viewRange.col2})`;
+
+        if (r < viewRange.row || viewRange.row2 < r) { return; }
+        if (c < viewRange.col || viewRange.col2 < c) { return; }
+
+        // あとは見えているセルに対して外観を設定する
+        if (panel.cellType === wijmo.grid.CellType.Cell) {
+          cell.style.backgroundColor = '';
+          cell.style.color = '';
+
+          if (r % 2 && c === 2) {
+            cell.style.backgroundColor = '#ff0000';
+            cell.style.color = '#ffffff';
+          }
+        }
+      }
+    }
+  </script>
+
+</body>
+
+</html>
